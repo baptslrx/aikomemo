@@ -1,0 +1,52 @@
+== Compréhension des recherches
+   lun. 19/10 00:00 → mar. 20/10 00:00 | Hier | Téléchargé | PDF | Gmail
+  ok   pdf + téléchargé + Gmail + hier
+   lun. 12/10 00:00 → lun. 19/10 00:00 | Semaine dernière | Téléchargé | WhatsApp | « facture »
+  ok   « facture reçue sur WhatsApp » + semaine dernière
+   « recu » | « uber »
+  ok   « le reçu Uber » : un ticket, pas un téléchargement
+   dim. 1/03 00:00 → mer. 1/04 00:00 | Mars | « facture »
+  ok   « de mars » = le mois
+   mar. 20/10 05:00 → mar. 20/10 12:00 | Aujourd'hui matin | Téléchargé | AirDrop
+  ok   j'ai reçu → téléchargement, AirDrop, ce matin
+   Copié | Liens | Avant Figma
+  ok   lien copié avant d'ouvrir Figma
+   mar. 13/10 00:00 → mer. 14/10 00:00 | Mardi dernier | Vidéos
+  ok   vidéo + mardi dernier (pas aujourd'hui)
+   lun. 19/10 18:00 → mar. 20/10 00:00 | Lundi soir | Images
+  ok   « photo » = image, pas l'appli Photos ; lundi soir
+   ven. 16/10 00:00 → lun. 19/10 00:00 | Il y a 3 jours | « devis » | « client »
+  ok   il y a 3 jours (± 1 jour)
+   mar. 20/10 11:50 → mar. 20/10 14:10 | Il y a 2 h | Copié
+  ok   il y a 2 heures (pas « à 2 h »), « j'ai » n'est pas un .ai
+   lun. 19/10 13:00 → lun. 19/10 15:00 | Hier, vers 14h | Projets vidéo | « export »
+  ok   hier vers 14h + projet DaVinci
+   lun. 12/10 00:00 → mar. 13/10 00:00 | 12 octobre | « contrat »
+  ok   le 12 octobre
+   Design | Figma | « mockup »
+  ok   « dans Figma » = lieu
+   « mail » | « paul »
+  ok   « mail » seul n'est pas l'appli Mail
+   PDF | « facture »
+  ok   nom.extension
+  ok   recherche vide = tout récent
+== Origine des téléchargements
+  ok   pièce jointe Gmail (Gmail)
+  ok   AirDrop (AirDrop)
+  ok   WeTransfer (WeTransfer)
+  ok   site inconnu → son adresse (exemple-studio.fr)
+== Base de données
+  ok   recherche plein texte (FTS5) disponible
+  ok   7 événements enregistrés
+  ok   pdf Gmail d'hier → ["Facture-Octobre.pdf"]
+  ok   accents ignorés : « brief epreuve » → ["Brief_épreuve.pdf"]
+  ok   lien copié avant Figma → ["https://www.figma.com/file/abc/Logo"]
+  ok   texte copié retrouvé → ["Rendez-vous chez le client à 16 h"]
+  ok   début de mot suffit → ["Interview_NTO_v3.drp"]
+  ok   projet DaVinci d'aujourd'hui → ["Interview_NTO_v3.drp"]
+  ok   vue récente (sans les applis) → 6
+  ok   aucun résultat avec tous les mots → au moins un → ["Brief_épreuve.pdf", "Facture-Octobre.pdf"]
+  ok   effacement automatique des anciens éléments
+  ok   tout effacer
+
+Tout est OK
