@@ -1,0 +1,55 @@
+name: Compiler AikoMemo
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  macos:
+    runs-on: macos-14
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tests du cœur (recherche, base de données)
+        run: |
+          mkdir -p screenshots
+          cd macos
+          xcrun swiftc -swift-version 5 Sources/Model.swift Sources/QueryParser.swift Sources/Store.swift \
+            Tests/core/main.swift -o /tmp/coeur 2>&1 | tee ../screenshots/coeur-compilation.txt
+          /tmp/coeur 2>&1 | tee ../screenshots/coeur.txt
+      - name: Compilation de l'appli (universelle)
+        if: always()
+        run: |
+          set +e
+          UNIVERSAL=1 ./macos/build.sh > screenshots/build.log 2>&1
+          code=$?
+          cat screenshots/build.log
+          grep -E "error:" screenshots/build.log | head -n 15 | while IFS= read -r l; do echo "::error title=Compilation::$l"; done
+          exit $code
+      - name: Test de l'appli (dossier, presse-papiers, recherche, captures)
+        timeout-minutes: 6
+        run: |
+          ./macos/build/AikoMemo.app/Contents/MacOS/AikoMemo --selftest "$PWD/screenshots" 2>&1 | tee screenshots/appli.txt
+      - name: Publier le rapport (branche captures-Mac)
+        if: always()
+        run: |
+          cd screenshots || exit 0
+          git init -q -b captures-Mac
+          git -c user.name=ci -c user.email=ci@aikomemo add -A
+          git -c user.name=ci -c user.email=ci@aikomemo commit -q -m "Rapport Mac" || exit 0
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:captures-Mac
+      - name: Archive
+        run: |
+          mkdir -p dist
+          ditto -c -k --sequesterRsrc --keepParent macos/build/AikoMemo.app dist/AikoMemo-Mac.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AikoMemo-Mac
+          path: dist/AikoMemo-Mac.zip
