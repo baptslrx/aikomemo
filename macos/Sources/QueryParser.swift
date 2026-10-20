@@ -195,6 +195,8 @@ struct QueryParser {
         // « reçu » : téléchargement seulement dans « j'ai reçu » (sinon c'est un reçu, un ticket)
         if take(#"\b(?:ai|as|a|avais|avait|avons|avez|ont|on m'a)\s+recu(?:e|s|es)?\b"#) != nil {
             q.kinds.insert(.download)
+        } else if q.place != nil, take(#"\brecu(?:e|s|es)?\b"#) != nil {
+            q.kinds.insert(.download)   // « la facture reçue sur WhatsApp »
         }
 
         // Moment
@@ -372,7 +374,7 @@ struct QueryParser {
             }
             return
         }
-        if let g = take(#"\ben\s+("# + mo + #")(?:\s+(\d{4}))?\b"#) {
+        if let g = take(#"\b(?:en|de|du mois de|d')\s*("# + mo + #")(?:\s+(\d{4}))?\b"#) {
             let m = Self.months.firstIndex(of: g[1])! + 1
             var comps = cal.dateComponents([.year], from: now)
             comps.month = m

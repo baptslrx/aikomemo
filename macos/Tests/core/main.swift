@@ -39,8 +39,16 @@ check(q.families == [.pdf] && q.kinds == [.download] && q.place == "Gmail" && q.
 
 q = parser.parse("la facture reçue sur WhatsApp la semaine dernière")
 print("   " + show(q))
-check(q.place == "WhatsApp" && q.terms == ["facture", "recue"] && q.from == at(12, 0) && q.to == at(19, 0),
-      "« facture reçue » (reçue sans « j'ai » reste un mot) + semaine dernière")
+check(q.place == "WhatsApp" && q.kinds == [.download] && q.terms == ["facture"] && q.from == at(12, 0)
+      && q.to == at(19, 0), "« facture reçue sur WhatsApp » + semaine dernière")
+
+q = parser.parse("le reçu Uber")
+print("   " + show(q))
+check(q.kinds.isEmpty && q.terms == ["recu", "uber"], "« le reçu Uber » : un ticket, pas un téléchargement")
+
+q = parser.parse("facture de mars")
+print("   " + show(q))
+check(q.terms == ["facture"] && q.from == at(1, 0, month: 3) && q.to == at(1, 0, month: 4), "« de mars » = le mois")
 
 q = parser.parse("le fichier que j'ai reçu par airdrop ce matin")
 print("   " + show(q))
