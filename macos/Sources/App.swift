@@ -39,6 +39,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        EditMenu.install(appName: "AikoMemo")
         settings = MemoSettings()
         do {
             store = try Store(url: Self.supportDir.appendingPathComponent("memoire.sqlite"))
