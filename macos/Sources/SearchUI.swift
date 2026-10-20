@@ -367,9 +367,8 @@ struct ResultRow: View {
     }
 }
 
-@MainActor
 enum FileIcons {
-    private static var cache: [String: NSImage] = [:]
+    nonisolated(unsafe) private static var cache: [String: NSImage] = [:]
     static func icon(path: String, ext: String?) -> NSImage {
         if FileManager.default.fileExists(atPath: path) { return NSWorkspace.shared.icon(forFile: path) }
         let key = ext ?? ""
@@ -421,7 +420,10 @@ final class SearchPanel: NSObject, NSWindowDelegate {
         p.makeKeyAndOrderFront(nil)
         if monitor == nil {
             monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-                MainActor.assumeIsolated { self?.handle(event) ?? event }
+                MainActor.assumeIsolated {
+                    guard let self else { return event }
+                    return self.handle(event)
+                }
             }
         }
     }

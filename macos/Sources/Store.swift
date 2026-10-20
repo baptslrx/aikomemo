@@ -58,7 +58,7 @@ final class Store {
     func exec(_ sql: String) -> Bool {
         var err: UnsafeMutablePointer<CChar>?
         let ok = sqlite3_exec(db, sql, nil, nil, &err) == SQLITE_OK
-        if let err { NSLog("AikoMemo SQL : %s", err); sqlite3_free(err) }
+        if let err { NSLog("AikoMemo SQL : %@", String(cString: err)); sqlite3_free(err) }
         return ok
     }
 
@@ -67,7 +67,7 @@ final class Store {
     private func prepare(_ sql: String, _ args: [Value]) -> OpaquePointer? {
         var stmt: OpaquePointer?
         guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else {
-            NSLog("AikoMemo SQL : %s", String(cString: sqlite3_errmsg(db)))
+            NSLog("AikoMemo SQL : %@", String(cString: sqlite3_errmsg(db)))
             return nil
         }
         for (i, a) in args.enumerated() {
@@ -159,7 +159,7 @@ final class Store {
     func latest(path: String, kinds: [EventKind], since: Date) -> MemoEvent? {
         let marks = kinds.map { _ in "?" }.joined(separator: ",")
         return select("SELECT * FROM events WHERE path=? AND ts>=? AND kind IN (\(marks)) ORDER BY ts DESC LIMIT 1",
-                      [.text(path), .real(since.timeIntervalSince1970)] + kinds.map { .text($0.rawValue) }).first
+                      [Value.text(path), Value.real(since.timeIntervalSince1970)] + kinds.map { Value.text($0.rawValue) }).first
     }
 
     func recent(limit: Int = 80) -> [MemoEvent] {
@@ -184,7 +184,7 @@ final class Store {
         if let from { sql += " AND ts >= ?"; args.append(.real(from.timeIntervalSince1970 - 3600)) }
         if let to { sql += " AND ts <= ?"; args.append(.real(to.timeIntervalSince1970)) }
         sql += " ORDER BY ts ASC LIMIT 2000"
-        return select(sql, args).map { ($0.ts, $0.ts.addingTimeInterval(max($0.duration, 30))) }
+        return select(sql, args).map { (start: $0.ts, end: $0.ts.addingTimeInterval(max($0.duration, 30))) }
     }
 
     // MARK: - Recherche
@@ -200,14 +200,14 @@ final class Store {
             var kinds = q.kinds
             if kinds.contains(.created) { kinds.insert(.download) }   // « enregistré » couvre aussi les téléchargements
             sql += " AND kind IN (\(kinds.map { _ in "?" }.joined(separator: ",")))"
-            args += kinds.map { .text($0.rawValue) }
+            args += kinds.map { Value.text($0.rawValue) }
         } else {
             sql += " AND kind != 'app'"
         }
         let exts = q.extensions.union(q.families.flatMap(\.extensions))
         if !exts.isEmpty {
             sql += " AND ext IN (\(exts.map { _ in "?" }.joined(separator: ",")))"
-            args += exts.map { .text($0) }
+            args += exts.map { Value.text($0) }
         }
         if q.links { sql += " AND (detail LIKE 'http%' OR title LIKE 'http%')" }
         if let place = q.place {
@@ -238,7 +238,7 @@ final class Store {
             }
             for t in q.terms {
                 sql += " AND (title LIKE ? OR path LIKE ? OR detail LIKE ? OR source LIKE ? OR app LIKE ?)"
-                args += Array(repeating: .text("%\(t)%"), count: 5)
+                args += Array(repeating: Value.text("%\(t)%"), count: 5)
             }
         }
         sql += " ORDER BY ts DESC LIMIT ?"
@@ -260,7 +260,7 @@ final class Store {
             }
         }
         let window: TimeInterval = 30 * 60
-        return merged.suffix(60).map { s in
+        return merged.suffix(60).map { s -> (Date, Date) in
             switch a.relation {
             case .before: return (s.start.addingTimeInterval(-window), s.start.addingTimeInterval(60))
             case .after: return (s.end.addingTimeInterval(-60), s.end.addingTimeInterval(window))

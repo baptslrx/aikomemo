@@ -207,6 +207,7 @@ struct QueryParser {
         var rest: [String] = []
         let allExt = Set(FileFamily.allCases.flatMap(\.extensions))
         for w in words {
+            if Self.stopwords.contains(w) { continue }   // « j'ai » n'est pas un fichier .ai
             if let k = Self.kindWords.first(where: { $0.1.contains(w) })?.0 { q.kinds.insert(k); continue }
             if let f = Self.familyWords.first(where: { $0.1.contains(w) })?.0 { q.families.insert(f); continue }
             if Self.linkWords.contains(w) { q.links = true; continue }

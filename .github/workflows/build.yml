@@ -44,7 +44,9 @@ jobs:
           git init -q -b captures-Mac
           git -c user.name=ci -c user.email=ci@aikomemo add -A
           git -c user.name=ci -c user.email=ci@aikomemo commit -q -m "Rapport Mac" || exit 0
-          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:captures-Mac
+          ls -la
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" HEAD:captures-Mac > push.txt 2>&1 \
+            || { tail -n 5 push.txt | while IFS= read -r l; do echo "::error title=Envoi du rapport::$l"; done; exit 1; }
       - name: Archive
         run: |
           mkdir -p dist

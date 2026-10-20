@@ -67,7 +67,8 @@ check(q.terms == ["devis", "client"] && q.from == at(16, 0) && q.to == at(19, 0)
 
 q = parser.parse("ce que j'ai copié il y a 2 heures")
 print("   " + show(q))
-check(q.kinds == [.clipboard] && q.from! < at(20, 13) && q.to! > at(20, 13), "il y a 2 heures (pas « à 2 h »)")
+check(q.kinds == [.clipboard] && q.extensions.isEmpty && q.from! < at(20, 13) && q.to! > at(20, 13),
+      "il y a 2 heures (pas « à 2 h »), « j'ai » n'est pas un .ai")
 
 q = parser.parse("export davinci hier vers 14h")
 print("   " + show(q))
